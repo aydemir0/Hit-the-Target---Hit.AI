@@ -38,11 +38,33 @@ The first version will focus on:
 
 ## Planned Stack
 
-- Next.js
-- TypeScript
-- Tailwind CSS
-- AI API
-- Supabase
+- **Next.js:** Full-stack framework for rendering UI and managing server-side routes.
+- **TypeScript:** Type safety across the frontend UI and API endpoints.
+- **Tailwind CSS:** Modern utility-first styling for responsive design.
+- **AI API:** Integrates external intelligence for analysis, evaluation, and recommendation tasks.
+- **Supabase:** Backend database for storing application assets and data.
+
+## AI & Data Flow Architecture
+
+To keep API credentials secure and handle user data properly, the application follows a server-mediated flow:
+
+```
+┌─────────────┐             ┌─────────────────────────┐             ┌────────────┐
+│ Frontend UI │ ──────────> │     Next.js Server      │ ──────────> │   AI API   │
+│             │ <────────── │  (Route Handlers / APIs)│ <────────── │            │
+└─────────────┘             └─────────────────────────┘             └────────────┘
+      │                                  │
+      │                                  │ (Secrets Management)
+      ▼                                  ▼
+┌─────────────┐             ┌─────────────────────────┐
+│  Supabase   │             │  Environment Variables  │
+└─────────────┘             └─────────────────────────┘
+```
+
+1. **Secure API Delegation:** All direct communication with the AI API is handled via Next.js Server/Route Handlers. Client-side code does not access the AI API directly, keeping sensitive API keys safely stored on the server via environment variables.
+2. **Context construction:** The server processes user inputs (LinkedIn details, CV data, and job descriptions) and prepares structured prompts before sending them to the AI API.
+3. **Data Integration:** Supabase serves as the system of record, storing and referencing user inputs, uploaded assets, or processed data.
+4. **Result Delivery:** The server receives the analysis from the AI API and delivers the structured results back to the Frontend UI for display.
 
 ## Status
 
