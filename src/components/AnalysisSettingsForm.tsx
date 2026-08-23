@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -28,7 +28,7 @@ export function AnalysisSettingsForm() {
   return (
     <div className="w-full max-w-md p-6 bg-white dark:bg-black rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-800">
       <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Analysis Settings</h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <div>
           <label htmlFor="target-role" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Target role <span className="text-red-500" aria-hidden="true">*</span>
@@ -120,3 +120,4 @@ export function AnalysisSettingsForm() {
     </div>
   );
 }
+
