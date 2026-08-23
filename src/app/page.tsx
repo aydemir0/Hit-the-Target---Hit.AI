@@ -1,69 +1,98 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
+  const [linkedInProfile, setLinkedInProfile] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [cvFile, setCvFile] = useState<File | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submitting:", { linkedInProfile, jobDescription, cvFile });
+    // TODO: Implement API call
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+      <div className="w-full max-w-3xl bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800">
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-3">Hit.AI</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Your AI-powered career assistant. Let&apos;s tailor your profile to your dream job.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b pb-3 dark:border-zinc-700">
+              Analysis Settings
+            </h2>
+            
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="linkedin" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  LinkedIn Profile Summary / Information
+                </label>
+                <textarea
+                  id="linkedin"
+                  name="linkedin"
+                  rows={4}
+                  className="block w-full rounded-lg border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-4 border transition-colors"
+                  placeholder="Paste your LinkedIn 'About' section or profile details here..."
+                  value={linkedInProfile}
+                  onChange={(e) => setLinkedInProfile(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="cv" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Upload CV (PDF or Word)
+                </label>
+                <input
+                  type="file"
+                  id="cv"
+                  name="cv"
+                  accept=".pdf,.doc,.docx"
+                  className="block w-full text-sm text-gray-500 dark:text-gray-400
+                    file:mr-4 file:py-2.5 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100
+                    dark:file:bg-blue-900/30 dark:file:text-blue-400
+                    cursor-pointer border border-gray-300 dark:border-zinc-700 rounded-lg p-2.5 transition-colors"
+                  onChange={(e) => setCvFile(e.target.files?.[0] || null)}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="jobDescription" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Target Job Description
+                </label>
+                <textarea
+                  id="jobDescription"
+                  name="jobDescription"
+                  rows={6}
+                  className="block w-full rounded-lg border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-4 border transition-colors"
+                  placeholder="Paste the description of the job you want to apply for..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Analyze & Generate Recommendations
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
