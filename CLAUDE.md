@@ -64,3 +64,10 @@ Before applying AI-generated changes:
 2. Understand what it modifies.
 3. Check for security and privacy issues.
 4. Verify that the change matches the project requirements.
+
+## FE-03 Learned Project Rules
+
+- Analysis settings forms must trim required text values before applying application-level validation.
+- When a form requires custom inline validation, use `noValidate` on the form while retaining semantic required fields, and test submission through the user-visible submit button rather than direct form submission.
+- Every form control must have a visible associated label. Validation errors must be programmatically connected using `aria-invalid` and `aria-describedby`.
+- Frontend-only settings must not claim persistence and must not introduce API, database, Supabase, or AI calls until persistence is actually implemented.
