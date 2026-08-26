@@ -1,4 +1,4 @@
-﻿# Hit.AI
+# Hit.AI
 
 Hit.AI is an AI-powered career assistant designed for job seekers who use LinkedIn and apply directly to job opportunities.
 
@@ -69,3 +69,40 @@ To keep API credentials secure and handle user data properly, the application fo
 ## Status
 
 Currently in the setup and planning phase.
+
+## AI Tool Contract — inspectJobPosting
+
+Name:
+inspectJobPosting
+
+Purpose:
+Inspect user-supplied job posting text and return deterministic structured signals for generative UI.
+
+Input schema:
+{
+  jobDescription: string
+}
+
+Return shape:
+{
+  seniority:
+    "Intern" | "Junior" | "Mid" | "Senior" | "Unknown",
+  technologies: string[],
+  wordCount: number,
+  findings: {
+    label: string,
+    evidence: string
+  }[]
+}
+
+Error behavior:
+- invalid schema input is rejected
+- [[tool-error]] intentionally demonstrates the designed error lifecycle
+- errors must render as output-error rather than crash the chat
+
+Limitations:
+- not CV matching
+- not ATS scoring
+- not an LLM fit score
+- no database query
+- output is based only on supplied job-description text

@@ -3,6 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useEffect, useRef, useState, FormEvent, KeyboardEvent } from 'react';
+import JobPostingToolPart from './JobPostingToolPart';
 
 export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolean }) {
   const [input, setInput] = useState('');
@@ -110,6 +111,24 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
               Welcome! I can help you analyze your career experience against target roles. 
               Paste your resume, a job description, or simply ask for advice to get started.
             </p>
+            <div className="flex gap-4 mt-6">
+              <button 
+                onClick={() => {
+                  sendMessage({ role: 'user', parts: [{ type: 'text', text: 'Inspect this job posting:\nJunior Frontend Developer\nReact\nTypeScript\nNext.js\nGit\nREST API' }] });
+                }}
+                className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors"
+              >
+                Try tool demo
+              </button>
+              <button 
+                onClick={() => {
+                  sendMessage({ role: 'user', parts: [{ type: 'text', text: 'Inspect this job posting:\n[[tool-error]]' }] });
+                }}
+                className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors"
+              >
+                Test error state
+              </button>
+            </div>
           </div>
         ) : (
           messages.map((m) => (
@@ -133,6 +152,13 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
                   {m.parts?.map((part, index) => {
                     if (part.type === 'text') {
                       return <span key={index}>{part.text}</span>;
+                    }
+                    if (part.type === 'tool-inspectJobPosting') {
+                      return (
+                        <div key={index} className="my-2">
+                          <JobPostingToolPart toolInvocation={part as import('./JobPostingToolPart').InspectJobPostingPart} />
+                        </div>
+                      );
                     }
                     return null;
                   })}
