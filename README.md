@@ -4,7 +4,7 @@ Hit.AI is an intelligent career-analysis assistant that compares your CV and Lin
 
 ## Live Demo
 
-https://hit-the-target-hit-ai-aydemir0.vercel.app/ (To be updated after deployment)
+https://hit-ai.vercel.app
 
 ## What It Does
 
@@ -44,10 +44,10 @@ npm run dev
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_APP_URL` | No | Base URL of the application. |
-| `ANTHROPIC_API_KEY` | No* | Secret key for Anthropic AI. *If missing, app uses a deterministic Demo mode. |
-| `ANTHROPIC_MODEL` | No | Override default Anthropic model (default: `claude-3-5-sonnet-20241022`). |
-| `GROQ_API_KEY` | No | Secret key for Groq AI. |
+| `GROQ_API_KEY` | Yes* | Primary production AI provider. Secret key for Groq AI. *If missing, app uses Demo mode. |
 | `GROQ_MODEL` | No | Override default Groq model (default: `openai/gpt-oss-120b`). |
+| `ANTHROPIC_API_KEY` | No | Optional fallback AI provider. Secret key for Anthropic AI. |
+| `ANTHROPIC_MODEL` | No | Override default Anthropic model (default: `claude-3-5-sonnet-20241022`). |
 
 ## Architecture
 
@@ -55,10 +55,10 @@ Browser/UI
 → Next.js API route (`src/app/api/chat/route.ts`)
 → Request guard (Rate limiting & payload caps)
 → Vercel AI SDK streaming
-→ Anthropic / Groq (or fallback Demo generator)
+→ Groq (Primary) / Anthropic (Optional Fallback) or Demo generator
 → Streamed response back to UI
 
-If no API key is supplied via `ANTHROPIC_API_KEY` or `GROQ_API_KEY`, the server falls back to a deterministic demo mode. This ensures the app can still be previewed and evaluated for UI/UX without burning API credits.
+If no API key is supplied via `GROQ_API_KEY` or `ANTHROPIC_API_KEY`, the server falls back to a deterministic demo mode. This ensures the app can still be previewed and evaluated for UI/UX without burning API credits.
 
 ## Production Safety
 
@@ -66,7 +66,7 @@ The production AI route is protected by:
 - **Input Caps:** Maximum 30 messages, 12,000 characters per message, and 30,000 total payload characters to prevent excessive context windows.
 - **Rate Limiting:** 10 AI requests per 60 seconds per client IP. This is a basic per-instance abuse guard rather than a globally distributed rate limiter.
 - **Streaming maxDuration:** Limited to 30 seconds to prevent hanging requests.
-- **Server-only API key:** `ANTHROPIC_API_KEY` is completely isolated in the server process and never exposed to the client.
+- **Server-only API key:** `GROQ_API_KEY` and `ANTHROPIC_API_KEY` are isolated in the server process and never exposed to the client.
 - **Abort/Cancel Support:** Streaming is fully abortable if the user cancels or navigates away.
 
 ## Key Decisions
