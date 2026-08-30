@@ -1,0 +1,1 @@
+{ "targetRole": "Junior Full-Stack Software Engineer", "experienceLevel": "Junior", "skills": [ "TypeScript", "React", "Next.js", "Git", "REST APIs" ], "projects": [ { "name": "Hit.AI", "evidence": "Built and tested a Next.js career assistant with TypeScript, AI SDK streaming, generative UI, resilience states, Groq integration, and Vercel preview deployments." } ] }
