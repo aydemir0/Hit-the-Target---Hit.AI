@@ -3,10 +3,12 @@ import { groq } from '@ai-sdk/groq';
 import { streamText, convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse } from 'ai';
 import { SYSTEM_PROMPT, MAX_OUTPUT_TOKENS, SabotageMode, getCareerAIProvider } from '@/lib/ai/career-chat-config';
 import { inspectJobPostingTool, execute } from '@/lib/ai/tools/inspect-job-posting';
+import { checkInputCaps, checkRateLimit, getClientIp } from '@/lib/ai/ai-request-guard';
 
 import type { UIMessage, TextUIPart } from 'ai';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 export function getTextFromUIMessage(message: UIMessage): string {
   if (!message || !Array.isArray(message.parts)) {
@@ -31,7 +33,24 @@ export function extractJobDescriptionRequest(message: UIMessage): string | null 
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    if (!checkRateLimit(ip)) {
+      return new Response(JSON.stringify({ error: 'Too many requests' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const { messages, sabotage } = await req.json();
+
+    const capsError = checkInputCaps(messages);
+    if (capsError) {
+      return new Response(JSON.stringify({ error: capsError }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const provider = getCareerAIProvider();
     
     // Sabotage always takes precedence over real AI execution
