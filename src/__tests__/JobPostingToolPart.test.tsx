@@ -1,9 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { expect, test, describe } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
+import { expect, test, describe, afterEach } from 'vitest';
 import JobPostingToolPart, { InspectJobPostingPart } from '../components/analysis/JobPostingToolPart';
 
 describe('JobPostingToolPart', () => {
+  afterEach(cleanup);
+
   test('input-streaming renders loading treatment', () => {
     const invocation: InspectJobPostingPart = {
       type: 'tool-inspectJobPosting',
@@ -67,5 +69,19 @@ describe('JobPostingToolPart', () => {
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByText('Could not inspect this job posting')).toBeTruthy();
     expect(screen.getByText(/intentional error-state demo/)).toBeTruthy();
+  });
+
+  test('malformed result fails safely', () => {
+    const invocation = {
+      type: 'tool-inspectJobPosting',
+      state: 'output-available',
+      toolCallId: '123',
+      input: { jobDescription: 'Some role' },
+      output: { seniority: 'FakeLevel', technologies: "not-an-array", wordCount: "three" }
+    } as unknown as InspectJobPostingPart;
+    
+    const { getByRole, getByText } = render(<JobPostingToolPart toolInvocation={invocation} />);
+    expect(getByRole('alert')).toBeTruthy();
+    expect(getByText('Could not display tool result')).toBeTruthy();
   });
 });

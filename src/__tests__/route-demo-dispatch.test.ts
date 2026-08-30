@@ -61,4 +61,17 @@ describe('Route Message Extraction', () => {
     const extracted = extractJobDescriptionRequest(message);
     expect(extracted).toBe('Software Engineer');
   });
+
+  test('mid-stream sabotage is applied to the first request (not text)', async () => {
+    // Check that we no longer look for mid-stream in the text itself
+    const message: UIMessage = {
+      id: 'msg-7',
+      role: 'user',
+      parts: [
+        { type: 'text', text: 'normal message' } as TextUIPart
+      ]
+    };
+    const text = getTextFromUIMessage(message);
+    expect(text).not.toContain('[[mid-stream-error]]');
+  });
 });

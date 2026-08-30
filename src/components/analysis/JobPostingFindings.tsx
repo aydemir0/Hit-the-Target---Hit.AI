@@ -8,6 +8,34 @@ type FindingsResult = {
 };
 
 export default function JobPostingFindings({ result }: { result: FindingsResult }) {
+  const hasNoResults = result.seniority === 'Unknown' && result.technologies.length === 0;
+
+  if (hasNoResults) {
+    return (
+      <div className="flex flex-col gap-3 p-4 border border-border rounded-lg bg-card text-card-foreground shadow-sm">
+        <h3 className="text-sm font-semibold">No clear technical signals found</h3>
+        <p className="text-sm text-muted-foreground">
+          Try pasting a more detailed job description with the responsibilities and requirements sections.
+        </p>
+        <button
+          onClick={() => {
+            const input = document.getElementById('chat-input') as HTMLTextAreaElement;
+            if (input) {
+              input.value = "Inspect this job posting:\nWe are hiring a Senior React Developer with 5+ years of experience in TypeScript and AWS.";
+              // trigger React onChange
+              const event = new Event('input', { bubbles: true });
+              input.dispatchEvent(event);
+              input.focus();
+            }
+          }}
+          className="self-start text-xs font-medium bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md hover:bg-secondary/80 transition-colors"
+        >
+          Insert detailed example
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 p-4 border border-border rounded-lg bg-card text-card-foreground shadow-sm">
       <div className="flex items-center justify-between">

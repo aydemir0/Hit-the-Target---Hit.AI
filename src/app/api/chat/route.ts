@@ -1,6 +1,6 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText, convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse } from 'ai';
-import { SYSTEM_PROMPT, DEFAULT_MODEL, MAX_OUTPUT_TOKENS } from '@/lib/ai/career-chat-config';
+import { SYSTEM_PROMPT, DEFAULT_MODEL, MAX_OUTPUT_TOKENS, SabotageMode } from '@/lib/ai/career-chat-config';
 import { inspectJobPostingTool, execute } from '@/lib/ai/tools/inspect-job-posting';
 
 import type { UIMessage, TextUIPart } from 'ai';
@@ -30,7 +30,7 @@ export function extractJobDescriptionRequest(message: UIMessage): string | null 
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { messages, sabotage } = await req.json();
     const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY;
     const modelName = process.env.ANTHROPIC_MODEL || DEFAULT_MODEL;
 
@@ -40,11 +40,26 @@ export async function POST(req: Request) {
       const lastMessage = messages[messages.length - 1];
       const jobDescription = extractJobDescriptionRequest(lastMessage);
       const isToolRequest = jobDescription !== null;
+
+      const isRateLimit = sabotage === ('rate-limit' satisfies SabotageMode);
+      if (isRateLimit) {
+        return new Response(JSON.stringify({ error: 'Too many requests' }), { 
+          status: 429, 
+          headers: { 'Content-Type': 'application/json' } 
+        });
+      }
+
+      const isSlowResponse = sabotage === ('slow-response' satisfies SabotageMode);
+      const isMidStreamError = sabotage === ('mid-stream' satisfies SabotageMode);
       
       const stream = createUIMessageStream({
         execute: async ({ writer }) => {
-          // Wait to ensure client has mounted the stream
-          await new Promise(r => setTimeout(r, 100));
+          if (isSlowResponse) {
+            await new Promise(r => setTimeout(r, 2000));
+          } else {
+            // Wait to ensure client has mounted the stream
+            await new Promise(r => setTimeout(r, 100));
+          }
 
           if (isToolRequest) {
             const toolCallId = crypto.randomUUID();
@@ -88,6 +103,21 @@ export async function POST(req: Request) {
             type: 'text-start',
             id: textPartId,
           });
+
+          if (isMidStreamError) {
+            writer.write({ type: 'text-delta', id: textPartId, delta: "Here is a " });
+            await new Promise(r => setTimeout(r, 200));
+            writer.write({ type: 'text-delta', id: textPartId, delta: "simulated " });
+            await new Promise(r => setTimeout(r, 200));
+            writer.write({ type: 'text-delta', id: textPartId, delta: "response that will fail" });
+            await new Promise(r => setTimeout(r, 200));
+            
+            writer.write({
+              type: 'error',
+              errorText: 'Simulated mid-stream failure'
+            });
+            return;
+          }
 
           const text = "This is a **demo response** for career analysis.\n\nSince no Anthropic API key is configured on the server, this fallback stream is playing back a deterministic response to show that streaming, aborting, and UI states function correctly without calling a paid API.\n\nBased on your message, here are some simulated strengths:\n- Strong communication skills\n- UI/UX implementation\n\nAnd potential areas to clarify:\n- Specific metric outcomes\n\nPlease connect an Anthropic API key to interact with the real Claude model.";
           const words = text.split(" ");

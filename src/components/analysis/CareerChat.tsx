@@ -13,6 +13,7 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
     stop,
     status,
     error,
+    regenerate,
     sendMessage,
   } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
@@ -70,6 +71,21 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
   };
 
   const isGenerating = status === 'submitted' || status === 'streaming';
+  // Empty submission prevention
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    onSubmit(e);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!input.trim()) return;
+      onKeyDown(e);
+    }
+  };
+
   const isInputDisabled = isGenerating;
 
   // Determine if we should show the thinking indicator
@@ -90,11 +106,11 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto border-x border-border bg-background relative">
+    <div className="flex flex-col h-[calc(100dvh-4rem)] max-w-4xl mx-auto border-x border-border bg-background relative pb-[env(safe-area-inset-bottom)]">
       
       {isDemoMode && (
         <div className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium px-4 py-2 text-center border-b border-amber-500/20">
-          Demo streaming mode — connect an Anthropic API key for live Claude responses.
+          Demo streaming mode - connect an Anthropic API key for live Claude responses.
         </div>
       )}
 
@@ -108,27 +124,75 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4 text-muted-foreground p-8">
             <h2 className="text-2xl font-bold text-foreground">Career Analysis Chat</h2>
             <p className="max-w-md">
-              Welcome! I can help you analyze your career experience against target roles. 
-              Paste your resume, a job description, or simply ask for advice to get started.
+              I can analyze your resume, compare your experience against target roles, and help you prepare for interviews.
             </p>
-            <div className="flex gap-4 mt-6">
+            <div className="flex flex-col gap-3 mt-6 w-full max-w-xs">
               <button 
                 onClick={() => {
                   sendMessage({ role: 'user', parts: [{ type: 'text', text: 'Inspect this job posting:\nJunior Frontend Developer\nReact\nTypeScript\nNext.js\nGit\nREST API' }] });
                 }}
-                className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors"
+                className="text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-left font-medium"
               >
-                Try tool demo
+                🔍 Inspect a job posting
+              </button>
+              <button 
+                onClick={() => {
+                  sendMessage({ role: 'user', parts: [{ type: 'text', text: 'Help me improve my interview preparation.' }] });
+                }}
+                className="text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-left font-medium"
+              >
+                💬 Ask for interview prep
               </button>
               <button 
                 onClick={() => {
                   sendMessage({ role: 'user', parts: [{ type: 'text', text: 'Inspect this job posting:\n[[tool-error]]' }] });
                 }}
-                className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors"
+                className="text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors text-left font-medium"
               >
-                Test error state
+                ⚠️ Test tool error state
               </button>
             </div>
+            
+            {isDemoMode && (
+              <div className="mt-8 p-4 border border-border rounded-lg text-left w-full max-w-xs bg-card">
+                <h3 className="text-sm font-semibold mb-3 text-foreground">Failure demos</h3>
+                <div className="flex flex-col gap-2">
+                  <button 
+                    onClick={() => {
+                      sendMessage(
+                        { role: 'user', parts: [{ type: 'text', text: 'Give me a short career analysis demo.' }] },
+                        { body: { sabotage: 'mid-stream' satisfies import('@/lib/ai/career-chat-config').SabotageMode } }
+                      );
+                    }}
+                    className="text-xs px-3 py-1.5 bg-muted text-foreground rounded border border-border hover:bg-muted/80 transition-colors"
+                  >
+                    Mid-stream failure
+                  </button>
+                  <button 
+                    onClick={() => {
+                      sendMessage(
+                        { role: 'user', parts: [{ type: 'text', text: 'Give me a short career analysis demo.' }] },
+                        { body: { sabotage: 'rate-limit' satisfies import('@/lib/ai/career-chat-config').SabotageMode } }
+                      );
+                    }}
+                    className="text-xs px-3 py-1.5 bg-muted text-foreground rounded border border-border hover:bg-muted/80 transition-colors"
+                  >
+                    Rate limit
+                  </button>
+                  <button 
+                    onClick={() => {
+                      sendMessage(
+                        { role: 'user', parts: [{ type: 'text', text: 'Give me a short career analysis demo.' }] },
+                        { body: { sabotage: 'slow-response' satisfies import('@/lib/ai/career-chat-config').SabotageMode } }
+                      );
+                    }}
+                    className="text-xs px-3 py-1.5 bg-muted text-foreground rounded border border-border hover:bg-muted/80 transition-colors"
+                  >
+                    Slow response
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           messages.map((m) => (
@@ -168,15 +232,20 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
           ))
         )}
 
-        {/* Thinking Indicator */}
+        {/* Thinking Indicator / Skeleton */}
         {showThinking && (
           <div className="flex justify-start">
-            <div className="bg-muted text-foreground rounded-2xl rounded-tl-sm px-4 py-3 border border-border" aria-live="polite">
-              <div className="flex items-center space-x-2">
+            <div className="bg-muted text-foreground rounded-2xl rounded-tl-sm px-4 py-3 border border-border min-w-[240px] max-w-[85%]" aria-live="polite">
+              <div className="flex items-center space-x-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: '300ms' }} />
                 <span className="sr-only">Assistant is thinking...</span>
+              </div>
+              <div className="space-y-2 opacity-30 @media(prefers-reduced-motion:reduce){animate-none}">
+                <div className="h-4 bg-foreground rounded w-3/4 animate-pulse"></div>
+                <div className="h-4 bg-foreground rounded w-1/2 animate-pulse"></div>
+                <div className="h-4 bg-foreground rounded w-5/6 animate-pulse"></div>
               </div>
             </div>
           </div>
@@ -184,9 +253,17 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
 
         {/* Generic Error State */}
         {error && (
-          <div className="flex justify-center my-4" aria-live="assertive">
-            <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-3 text-sm max-w-md text-center">
-              Sorry, there was a problem communicating with the assistant. Please try again.
+          <div className="flex justify-center my-4">
+            <div role="alert" className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-4 text-sm max-w-md text-center space-y-3">
+              <h3 className="font-semibold text-base">The response was interrupted</h3>
+              <p>{(error.message?.includes('429') || error.message?.includes('Too many requests')) ? 'Wait a moment, then retry this response.' : 'An error occurred while generating the response.'}</p>
+              <button
+                onClick={() => regenerate()}
+                disabled={isGenerating}
+                className="inline-flex items-center justify-center px-4 py-2 bg-destructive text-destructive-foreground rounded-md font-medium hover:bg-destructive/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+              >
+                Retry response
+              </button>
             </div>
           </div>
         )}
@@ -199,23 +276,23 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
           className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-secondary text-secondary-foreground px-4 py-2 rounded-full shadow-lg border border-border text-sm font-medium hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-transform"
           aria-label="Jump to latest message"
         >
-          ↓ Jump to latest
+            Jump to latest
         </button>
       )}
 
       {/* Input Area */}
       <div className="p-4 border-t border-border bg-background">
-        <form onSubmit={onSubmit} className="relative flex items-end gap-2 max-w-4xl mx-auto">
+        <form onSubmit={handleFormSubmit} className="relative flex items-end gap-2 max-w-4xl mx-auto">
           <div className="relative flex-1">
             <label htmlFor="chat-input" className="sr-only">Type your message</label>
             <textarea
               id="chat-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={onKeyDown}
+              onKeyDown={handleKeyDown}
               disabled={isInputDisabled}
               placeholder="Ask for career analysis..."
-              className="w-full resize-none rounded-xl border border-input bg-transparent px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[52px] max-h-32"
+              className="w-full resize-none rounded-xl border border-input bg-transparent px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[52px] max-h-32"
               rows={1}
             />
           </div>

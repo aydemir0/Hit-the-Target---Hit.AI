@@ -21,3 +21,5 @@ Tool Usage:
 - When the user asks to inspect, analyze, summarize, or extract structured information from a job posting, use the \`inspectJobPosting\` tool. Do not force the tool for ordinary conversation.
 
 Be professional, constructive, and direct.`;
+
+export type SabotageMode = 'mid-stream' | 'rate-limit' | 'slow-response';

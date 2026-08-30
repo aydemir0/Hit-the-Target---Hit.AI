@@ -3,10 +3,21 @@ import JobPostingFindings from './JobPostingFindings';
 
 import type { ToolUIPart, InferUITools } from 'ai';
 import { inspectJobPostingTool } from '@/lib/ai/tools/inspect-job-posting';
+import { z } from 'zod';
 
 export type InspectJobPostingPart = ToolUIPart<InferUITools<{
   inspectJobPosting: typeof inspectJobPostingTool;
 }>>;
+
+const outputSchema = z.object({
+  seniority: z.enum(['Intern', 'Junior', 'Mid', 'Senior', 'Unknown']),
+  technologies: z.array(z.string()),
+  wordCount: z.number(),
+  findings: z.array(z.object({
+    label: z.string(),
+    evidence: z.string()
+  }))
+});
 
 export default function JobPostingToolPart({ toolInvocation }: { toolInvocation: InspectJobPostingPart }) {
   const { state, input } = toolInvocation;
@@ -54,9 +65,19 @@ export default function JobPostingToolPart({ toolInvocation }: { toolInvocation:
   }
 
   if (state === 'output-available') {
+    const parsed = outputSchema.safeParse(toolInvocation.output);
+    if (!parsed.success) {
+      return (
+        <div role="alert" className="flex flex-col p-4 border border-destructive/50 rounded-lg bg-destructive/10 text-destructive shadow-sm transition-all duration-200">
+          <h3 className="text-sm font-semibold mb-1">Could not display tool result</h3>
+          <p className="text-xs opacity-90">The inspection completed but returned unexpected data format.</p>
+        </div>
+      );
+    }
+
     return (
       <div className="transition-all duration-200">
-        <JobPostingFindings result={toolInvocation.output} />
+        <JobPostingFindings result={parsed.data} />
       </div>
     );
   }
