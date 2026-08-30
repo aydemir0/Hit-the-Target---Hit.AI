@@ -11,7 +11,7 @@ describe('Server Action Module Constraints', () => {
     // There must be at least one export
     expect(exports.length).toBeGreaterThan(0);
     
-    for (const [name, value] of exports) {
+    for (const [, value] of exports) {
       expect(typeof value).toBe('function');
       
       // We can't strictly check for 'AsyncFunction' constructor in all environments 
