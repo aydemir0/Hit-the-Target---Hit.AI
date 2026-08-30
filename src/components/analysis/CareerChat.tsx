@@ -110,7 +110,7 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
       
       {isDemoMode && (
         <div className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium px-4 py-2 text-center border-b border-amber-500/20">
-          Demo streaming mode - connect an Anthropic API key for live Claude responses.
+          Demo streaming mode — connect an AI provider key for live responses.
         </div>
       )}
 

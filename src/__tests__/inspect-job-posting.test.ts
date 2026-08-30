@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest';
-import { execute } from '../lib/ai/tools/inspect-job-posting';
+import { execute, inspectJobPostingTool } from '../lib/ai/tools/inspect-job-posting';
 
 describe('inspectJobPostingTool', () => {
   test('recognizes technologies actually present', async () => {
@@ -27,5 +27,25 @@ describe('inspectJobPostingTool', () => {
   test('[[tool-error]] controlled failure', async () => {
     await expect(execute({ jobDescription: 'Please see this posting: [[tool-error]]' }))
       .rejects.toThrow('Job posting inspection failed in the intentional error-state demo.');
+  });
+
+  test('tool definition has correct AI SDK v7 shape (inputSchema)', () => {
+    // The current ai package requires `inputSchema` rather than `parameters`
+    // and it shouldn't be cast as `unknown as Tool` which bypassed type checks.
+    expect(inspectJobPostingTool).toHaveProperty('inputSchema');
+    // Ensure that parameters doesn't exist, as `tool()` from 'ai' generates `parameters`
+    // internally but the shape we provide to it/export from it is usually typed via the helper.
+    // Wait, let's just check for 'inputSchema' as requested by the prompt.
+    expect(inspectJobPostingTool).not.toHaveProperty('parameters');
+  });
+
+  test('tool executes correctly with the manual test job description', async () => {
+    const jobDescription = 'Junior Frontend Developer React TypeScript Next.js Git REST API';
+    const result = await execute({ jobDescription });
+    
+    expect(result.seniority).toBe('Junior');
+    expect(result.technologies).toEqual(
+      expect.arrayContaining(['React', 'TypeScript', 'Next.js', 'Git', 'REST'])
+    );
   });
 });

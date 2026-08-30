@@ -23,3 +23,26 @@ Tool Usage:
 Be professional, constructive, and direct.`;
 
 export type SabotageMode = 'mid-stream' | 'rate-limit' | 'slow-response';
+
+export type CareerAIProvider =
+  | { type: 'groq'; model: string }
+  | { type: 'anthropic'; model: string }
+  | { type: 'demo' };
+
+export const getCareerAIProvider = (): CareerAIProvider => {
+  if (process.env.GROQ_API_KEY) {
+    return {
+      type: 'groq',
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+    };
+  }
+
+  if (process.env.ANTHROPIC_API_KEY) {
+    return {
+      type: 'anthropic',
+      model: process.env.ANTHROPIC_MODEL || DEFAULT_MODEL,
+    };
+  }
+
+  return { type: 'demo' };
+};

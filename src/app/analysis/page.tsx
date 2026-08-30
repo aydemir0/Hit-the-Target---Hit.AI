@@ -5,7 +5,7 @@ export const metadata = {
 };
 
 export default function AnalysisPage() {
-  const isDemoMode = !process.env.ANTHROPIC_API_KEY;
+  const isDemoMode = !process.env.ANTHROPIC_API_KEY && !process.env.GROQ_API_KEY;
 
   return (
     <div className="w-full bg-muted/30">

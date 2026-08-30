@@ -7,7 +7,9 @@ const technologiesList = [
   'Git', 'Docker', 'AWS', 'REST', 'GraphQL'
 ];
 
-const parameters = z.object({
+import { tool } from 'ai';
+
+const inputSchema = z.object({
   jobDescription: z.string()
     .trim()
     .min(10)
@@ -15,7 +17,7 @@ const parameters = z.object({
     .describe('The raw text of the job posting to inspect.')
 });
 
-export async function execute({ jobDescription }: z.infer<typeof parameters>) {
+export async function execute({ jobDescription }: z.infer<typeof inputSchema>) {
   if (jobDescription.includes('[[tool-error]]')) {
     throw new Error('Job posting inspection failed in the intentional error-state demo.');
   }
@@ -69,8 +71,8 @@ export async function execute({ jobDescription }: z.infer<typeof parameters>) {
   };
 }
 
-export const inspectJobPostingTool = {
+export const inspectJobPostingTool = tool({
   description: 'Inspect user-supplied job posting text and return deterministic structured signals for generative UI.',
-  parameters,
+  inputSchema,
   execute
-} as unknown as import('ai').Tool;
+});

@@ -1,6 +1,7 @@
 import { anthropic } from '@ai-sdk/anthropic';
+import { groq } from '@ai-sdk/groq';
 import { streamText, convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse } from 'ai';
-import { SYSTEM_PROMPT, DEFAULT_MODEL, MAX_OUTPUT_TOKENS, SabotageMode } from '@/lib/ai/career-chat-config';
+import { SYSTEM_PROMPT, MAX_OUTPUT_TOKENS, SabotageMode, getCareerAIProvider } from '@/lib/ai/career-chat-config';
 import { inspectJobPostingTool, execute } from '@/lib/ai/tools/inspect-job-posting';
 
 import type { UIMessage, TextUIPart } from 'ai';
@@ -31,26 +32,25 @@ export function extractJobDescriptionRequest(message: UIMessage): string | null 
 export async function POST(req: Request) {
   try {
     const { messages, sabotage } = await req.json();
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY;
-    const modelName = process.env.ANTHROPIC_MODEL || DEFAULT_MODEL;
+    const provider = getCareerAIProvider();
+    
+    // Sabotage always takes precedence over real AI execution
+    // to preserve zero-cost, deterministic reviewer failure demos
+    const isRateLimit = sabotage === ('rate-limit' satisfies SabotageMode);
+    if (isRateLimit) {
+      return new Response(JSON.stringify({ error: 'Too many requests' }), { 
+        status: 429, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
 
-    // The Anthropic path is the actual AI implementation.
-    // The demo stream exists only to make the frontend interaction reviewable without paid credentials.
-    if (!hasAnthropicKey) {
+    const isSlowResponse = sabotage === ('slow-response' satisfies SabotageMode);
+    const isMidStreamError = sabotage === ('mid-stream' satisfies SabotageMode);
+
+    if (provider.type === 'demo' || isSlowResponse || isMidStreamError) {
       const lastMessage = messages[messages.length - 1];
       const jobDescription = extractJobDescriptionRequest(lastMessage);
       const isToolRequest = jobDescription !== null;
-
-      const isRateLimit = sabotage === ('rate-limit' satisfies SabotageMode);
-      if (isRateLimit) {
-        return new Response(JSON.stringify({ error: 'Too many requests' }), { 
-          status: 429, 
-          headers: { 'Content-Type': 'application/json' } 
-        });
-      }
-
-      const isSlowResponse = sabotage === ('slow-response' satisfies SabotageMode);
-      const isMidStreamError = sabotage === ('mid-stream' satisfies SabotageMode);
       
       const stream = createUIMessageStream({
         execute: async ({ writer }) => {
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
             return;
           }
 
-          const text = "This is a **demo response** for career analysis.\n\nSince no Anthropic API key is configured on the server, this fallback stream is playing back a deterministic response to show that streaming, aborting, and UI states function correctly without calling a paid API.\n\nBased on your message, here are some simulated strengths:\n- Strong communication skills\n- UI/UX implementation\n\nAnd potential areas to clarify:\n- Specific metric outcomes\n\nPlease connect an Anthropic API key to interact with the real Claude model.";
+          const text = "This is a **demo response** for career analysis.\n\nSince no AI provider key is configured on the server, this fallback stream is playing back a deterministic response to show that streaming, aborting, and UI states function correctly without calling a paid API.\n\nBased on your message, here are some simulated strengths:\n- Strong communication skills\n- UI/UX implementation\n\nAnd potential areas to clarify:\n- Specific metric outcomes\n\nDemo streaming mode — connect an AI provider key for live responses.";
           const words = text.split(" ");
           
           for (const word of words) {
@@ -148,8 +148,10 @@ export async function POST(req: Request) {
       });
     }
 
+    const model = provider.type === 'groq' ? groq(provider.model) : anthropic(provider.model);
+
     const result = streamText({
-      model: anthropic(modelName),
+      model,
       system: SYSTEM_PROMPT,
       tools: {
         inspectJobPosting: inspectJobPostingTool,
