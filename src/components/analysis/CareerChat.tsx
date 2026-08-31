@@ -109,7 +109,7 @@ export default function CareerChat({ isDemoMode = false }: { isDemoMode?: boolea
     <div className="flex flex-col h-[calc(100dvh-4rem)] max-w-4xl mx-auto border-x border-border bg-background relative pb-[env(safe-area-inset-bottom)]">
       
       {isDemoMode && (
-        <div className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium px-4 py-2 text-center border-b border-amber-500/20">
+        <div className="bg-amber-500/10 text-amber-900 dark:text-amber-400 text-xs font-medium px-4 py-2 text-center border-b border-amber-500/20">
           Demo streaming mode — connect an AI provider key for live responses.
         </div>
       )}
