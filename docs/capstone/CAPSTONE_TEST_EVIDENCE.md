@@ -8,7 +8,7 @@ npm run test:e2e
 
 ## Actual Results
 - **Unit/Integration (vitest):** 16 test files, 65 tests passed (100%).
-- **E2E (Playwright):** 1 test file (2 tests) passed (100%).
+- **E2E (Playwright):** 2 test files, 3 tests passed (100%).
 
 ## Component Inventory
 There are 9 primary meaningful frontend components across the app:

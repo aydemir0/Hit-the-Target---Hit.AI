@@ -7,7 +7,7 @@ Hit.AI is an intelligent career-analysis assistant designed for job seekers who 
 https://hit-ai.vercel.app
 
 ## Repository
-https://github.com/aydemir0/Hit-the-Target---Hit.AI
+https://github.com/aydemir0/Hit-the-Target---Hit.AI/tree/fe09-testing-ci
 
 ## Architecture & AI Integration
 Hit.AI is built on Next.js and the Vercel AI SDK, utilizing Groq as the primary provider with an Anthropic fallback. The application employs server-side streaming to securely invoke AI endpoints while delivering a highly responsive, low-latency chat experience. It features strict production request guards (rate limiting and input caps) and includes a specialized Job Prioritization agent that leverages Generative UI to extract structured job requirements.
