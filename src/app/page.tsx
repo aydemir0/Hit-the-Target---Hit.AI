@@ -13,23 +13,23 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <Link href="/applications" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <Link prefetch={false} href="/applications" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <h2 className="text-xl font-semibold mb-2">Job Tracker</h2>
           <p className="text-muted-foreground">Keep track of your applications, interviews, and offers locally.</p>
         </Link>
-        <Link href="/analysis" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <Link prefetch={false} href="/analysis" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <h2 className="text-xl font-semibold mb-2">AI Career Analysis</h2>
           <p className="text-muted-foreground">Analyze your CV against job descriptions. (Coming Soon)</p>
         </Link>
-        <Link href="/cover-letter" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <Link prefetch={false} href="/cover-letter" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <h2 className="text-xl font-semibold mb-2">Cover Letter Generator</h2>
           <p className="text-muted-foreground">Generate tailored cover letters effortlessly. (Coming Soon)</p>
         </Link>
-        <Link href="/linkedin" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <Link prefetch={false} href="/linkedin" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <h2 className="text-xl font-semibold mb-2">LinkedIn Optimizer</h2>
           <p className="text-muted-foreground">Get recommendations to improve your profile. (Coming Soon)</p>
         </Link>
-        <Link href="/interview" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <Link prefetch={false} href="/interview" className="block p-6 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <h2 className="text-xl font-semibold mb-2">Interview Prep</h2>
           <p className="text-muted-foreground">Practice and prepare for your upcoming interviews. (Coming Soon)</p>
         </Link>

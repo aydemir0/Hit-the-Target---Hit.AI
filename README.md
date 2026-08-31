@@ -20,9 +20,14 @@ Hit.AI is designed for job seekers and candidates who want AI-assisted career gu
 
 ## Screenshots
 
-*(Placeholder for 2 screenshots)*
-1. **Main Input Experience:** (Screenshot of the form to enter CV/profile/job description)
-2. **Career-Analysis Chat:** (Screenshot of the streaming chat with the AI highlighting strengths and gaps)
+1. **Main Input Experience:** Users can easily navigate to the job tracker or career chat.
+2. **Career-Analysis Chat:** The chat streams back targeted strengths and gaps.
+
+## Capstone Evidence
+
+This project was built for the FlyRank Frontend AI Engineering Capstone.
+View the final portfolio entry and audit reports here:
+[Capstone Portfolio Entry](docs/capstone/CAPSTONE_PORTFOLIO_ENTRY.md)
 
 ## Tech Stack
 

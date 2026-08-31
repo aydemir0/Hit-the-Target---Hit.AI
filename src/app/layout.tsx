@@ -37,7 +37,7 @@ export default function RootLayout({
                 <Link href="/" className="flex-shrink-0 flex items-center font-bold text-xl text-primary">
                   Hit.AI
                 </Link>
-                <nav className="hidden sm:ml-8 sm:flex sm:space-x-4">
+                <nav aria-label="Main Navigation" className="hidden sm:ml-8 sm:flex sm:space-x-4">
                   <Link href="/analysis" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">Analysis</Link>
                   <Link href="/prioritize" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">Prioritize</Link>
                   <Link href="/applications" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">Applications</Link>
@@ -52,7 +52,7 @@ export default function RootLayout({
             </div>
             {/* Mobile horizontal scrolling nav */}
             <div className="sm:hidden pb-3 overflow-x-auto whitespace-nowrap scrollbar-hide">
-              <nav className="flex space-x-4">
+              <nav aria-label="Mobile Navigation" className="flex space-x-4">
                   <Link href="/analysis" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">Analysis</Link>
                   <Link href="/prioritize" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">Prioritize</Link>
                   <Link href="/applications" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">Applications</Link>
