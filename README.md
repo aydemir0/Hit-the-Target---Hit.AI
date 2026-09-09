@@ -32,11 +32,9 @@ User
 - deterministic fallback
 
 ## Testing
-- Vitest tests covering core logic, routing, and prompt guards
-- Playwright end-to-end testing
-- axe/accessibility checks
-- CI integration
-- 5/6 evaluation passing rate for prioritized results
+- 65/65 unit/integration tests
+- 3/3 Playwright E2E/accessibility tests
+- 5/6 behavioral evaluation result
 
 ## Evaluation
 We ran a controlled, six-case evaluation against the post-build production prioritizer using Groq. 
@@ -54,8 +52,14 @@ We ran a controlled, six-case evaluation against the post-build production prior
 - Optional AI Provider: Anthropic (Non-production fallback)
 
 ## Screenshots
-1. **Main Input Experience:** Users can easily navigate to the job tracker or career chat.
-2. **Career-Analysis Chat:** The chat streams back targeted strengths and gaps.
+![Hit.AI Home](docs/screenshots/hit-ai-home.png)
+*Main Input Experience: Users can easily navigate to the job tracker or career chat.*
+
+![Career Analysis Chat](docs/screenshots/hit-ai-career-chat.png)
+*Career-Analysis Chat: The chat streams back targeted strengths and gaps.*
+
+![Job Prioritizer](docs/screenshots/hit-ai-prioritizer.png)
+*Job Prioritizer: Instantly decide whether to Apply, Maybe, or Skip a role.*
 
 ## My Engineering Decisions
 - **Server-Side Streaming over Client Fetching:** We use server-side streaming (via the Vercel AI SDK on API routes) rather than calling the AI provider directly from the browser. This keeps API credentials strictly private on the server while allowing users to see answers progressively.
