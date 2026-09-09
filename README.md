@@ -1,71 +1,84 @@
-﻿# Hit.AI
+# Hit.AI
 
-Hit.AI is an AI-powered career assistant designed for job seekers who use LinkedIn and apply directly to job opportunities.
+Hit.AI provides AI-assisted career guidance and evidence-based job posting analysis to help candidates prioritize applications.
 
-## The Problem
+## Live Demo
+https://hit-ai.vercel.app
 
-Job seekers often use the same CV and LinkedIn profile for different job applications. This can reduce their chances of matching recruiter searches, ATS systems, and the specific requirements of a job posting.
+## What It Solves
+Hit.AI eliminates the guesswork in job hunting by objectively comparing your profile against job descriptions, preventing wasted effort on incompatible roles and highlighting specific skill gaps.
 
-## What Hit.AI Will Do
+## Core Product
+- Streaming career chat
+- Structured job-posting analysis
+- Apply / Maybe / Skip prioritizer
+- Deterministic demo/fallback behavior
 
-Users will be able to provide:
+## Architecture
+User
+→ Next.js UI
+→ Server/API Layer
+→ Request Guards
+→ AI SDK
+→ Groq
+→ Structured / streamed result
 
-- Their LinkedIn profile information
-- Their existing CV
-- A target job description
+## Reliability & Safety
+- server-side secrets
+- prompt-injection handling
+- rate/request limits
+- input validation
+- failure states
+- deterministic fallback
 
-Hit.AI will analyze these inputs and provide:
+## Testing
+- 65/65 unit/integration tests
+- 3/3 Playwright E2E/accessibility tests
+- 5/6 behavioral evaluation result
 
-- LinkedIn profile analysis
-- Recruiter keyword and discoverability recommendations
-- CV-to-job match score
-- Missing skills and keywords
-- Tailored CV suggestions
-- Cover letter generation
-- LinkedIn post and hashtag suggestions
-- Interview preparation recommendations
+## Evaluation
+We ran a controlled, six-case evaluation against the post-build production prioritizer using Groq. 
+- Results: 5/6 Passed. 1/6 Failed.
+- The model correctly resisted prompt injections and hallucinations.
+- Limitation: The model aggressively chose "Skip" when candidate information was sparse instead of correctly identifying it as "Maybe".
 
-## MVP
+## Tech Stack
+- Next.js (App Router)
+- React
+- TypeScript
+- Tailwind CSS
+- Vercel AI SDK
+- Primary AI Provider: Groq (Production)
+- Optional AI Provider: Anthropic (Non-production fallback)
 
-The first version will focus on:
+## Screenshots
+![Hit.AI Home](docs/screenshots/hit-ai-home.png)
+*Main Input Experience: Users can easily navigate to the job tracker or career chat.*
 
-1. LinkedIn profile text input
-2. CV upload
-3. Job description input
-4. AI-powered job match analysis
-5. Profile and CV improvement recommendations
-6. Tailored application content
+![Career Analysis Chat](docs/screenshots/hit-ai-career-chat.png)
+*Career-Analysis Chat: The chat streams back targeted strengths and gaps.*
 
-## Planned Stack
+![Job Prioritizer](docs/screenshots/hit-ai-prioritizer.png)
+*Job Prioritizer: Instantly decide whether to Apply, Maybe, or Skip a role.*
 
-- **Next.js:** Full-stack framework for rendering UI and managing server-side routes.
-- **TypeScript:** Type safety across the frontend UI and API endpoints.
-- **Tailwind CSS:** Modern utility-first styling for responsive design.
-- **AI API:** Integrates external intelligence for analysis, evaluation, and recommendation tasks.
-- **Supabase:** Backend database for storing application assets and data.
+## My Engineering Decisions
+- **Server-Side Streaming over Client Fetching:** We use server-side streaming (via the Vercel AI SDK on API routes) rather than calling the AI provider directly from the browser. This keeps API credentials strictly private on the server while allowing users to see answers progressively.
+- **Provider Choice:** Groq is the primary production provider due to performance, while Anthropic serves as an optional/non-production fallback. The Anthropic API is not enabled in the current production deployment.
 
-## AI & Data Flow Architecture
+## Limitations
+- **Context-Dependent AI:** AI output strictly depends on the supplied context; sparse inputs yield less useful guidance.
+- **Not an ATS Score:** The output is qualitative guidance, not an objective ATS match percentage.
+- **Per-Instance Limits:** The in-memory rate limiter is per runtime instance, not globally distributed.
 
-To keep API credentials secure and handle user data properly, the application follows a server-mediated flow:
+## Local Development
 
+```bash
+git clone https://github.com/aydemir0/Hit-the-Target---Hit.AI.git
+cd Hit-the-Target---Hit.AI
+npm install
+copy .env.example .env.local
+npm run dev
 ```
-┌─────────────┐             ┌─────────────────────────┐             ┌────────────┐
-│ Frontend UI │ ──────────> │     Next.js Server      │ ──────────> │   AI API   │
-│             │ <────────── │  (Route Handlers / APIs)│ <────────── │            │
-└─────────────┘             └─────────────────────────┘             └────────────┘
-      │                                  │
-      │                                  │ (Secrets Management)
-      ▼                                  ▼
-┌─────────────┐             ┌─────────────────────────┐
-│  Supabase   │             │  Environment Variables  │
-└─────────────┘             └─────────────────────────┘
-```
 
-1. **Secure API Delegation:** All direct communication with the AI API is handled via Next.js Server/Route Handlers. Client-side code does not access the AI API directly, keeping sensitive API keys safely stored on the server via environment variables.
-2. **Context construction:** The server processes user inputs (LinkedIn details, CV data, and job descriptions) and prepares structured prompts before sending them to the AI API.
-3. **Data Integration:** Supabase serves as the system of record, storing and referencing user inputs, uploaded assets, or processed data.
-4. **Result Delivery:** The server receives the analysis from the AI API and delivers the structured results back to the Frontend UI for display.
-
-## Status
-
-Currently in the setup and planning phase.
+## License
+MIT License
